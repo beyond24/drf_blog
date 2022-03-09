@@ -2,16 +2,17 @@ from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from rest_framework import status,generics,viewsets
+from rest_framework import status, generics, viewsets
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAdminUser
 from .permisssions import IsAdminUserOrReadOnly
 
-from article.models import Article
+from article.models import Article, Category
 # from article.serializers import ArticleListSerializer, ArticleDetailSerializer
-from article.serializers import ArticleSerializer
+from article.serializers import ArticleSerializer, CategorySerializer,CategoryDetailSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import ArticleFilter
+
 
 # Create your views here.
 
@@ -52,7 +53,6 @@ from .filters import ArticleFilter
 #         article = self.get_obj(pk)
 #         article.delete()
 #         return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 
 # class ArticleList(generics.ListCreateAPIView):
@@ -98,3 +98,16 @@ class ArticleViewSet(viewsets.ModelViewSet):
     #     if username:
     #         queryset = queryset.filter(author__username=username)
     #     return queryset
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [IsAdminUserOrReadOnly]
+
+    # 使用自定义序列化器
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return CategorySerializer
+        else:
+            return CategoryDetailSerializer
