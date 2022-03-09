@@ -14,8 +14,23 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+
+from article import views
+
+router = DefaultRouter()
+router.register(r'article', views.ArticleViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # drf登录视图
+    path('api-auth/', include('rest_framework.urls')),
+
+    # 文章 改用视图集生成
+    # path('api/article/', include('article.urls', namespace='article')),
+
+    # 使用viewset自动生成路由
+    path('api/', include(router.urls))
 ]
