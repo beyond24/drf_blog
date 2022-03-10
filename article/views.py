@@ -7,9 +7,9 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAdminUser
 from .permisssions import IsAdminUserOrReadOnly
 
-from article.models import Article, Category
+from article.models import Article, Category, Tag
 # from article.serializers import ArticleListSerializer, ArticleDetailSerializer
-from article.serializers import ArticleSerializer, CategorySerializer,CategoryDetailSerializer
+from article.serializers import ArticleSerializer, CategorySerializer, CategoryDetailSerializer, TagSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import ArticleFilter
 
@@ -111,3 +111,9 @@ class CategoryViewSet(viewsets.ModelViewSet):
             return CategorySerializer
         else:
             return CategoryDetailSerializer
+
+
+class TagViewSet(viewsets.ModelViewSet):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    permission_classes = [IsAdminUserOrReadOnly]

@@ -13,6 +13,15 @@ class Category(models.Model):
     def __str__(self):
         return self.title
 
+class Tag(models.Model):
+    text = models.CharField(max_length=30)
+
+    class Meta:
+        ordering = ['-id']
+
+    def __str__(self):
+        return self.text
+
 class Article(models.Model):
     title = models.CharField(max_length=100)
     body = models.TextField()
@@ -29,6 +38,11 @@ class Article(models.Model):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
+        related_name='articles'
+    )
+    tags = models.ManyToManyField(
+        Tag,
+        blank=True,
         related_name='articles'
     )
 

@@ -1,5 +1,7 @@
+import json
+
 from rest_framework import serializers
-from .models import Article, Category
+from .models import Article, Category, Tag
 from user_info.serializers import UserDescSerializer
 
 
@@ -36,12 +38,32 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['created']
 
+class TagSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Tag
+        fields = '__all__'
+
 
 class ArticleSerializer(serializers.HyperlinkedModelSerializer):
     author = UserDescSerializer(read_only=True)
     category = CategorySerializer(read_only=True)
     # category 的 id 字段，用于创建/更新 category 外键
     category_id = serializers.IntegerField(write_only=True, allow_null=True, required=False)
+    tags = serializers.SlugRelatedField(
+        queryset=Tag.objects.all(),
+        many=True,
+        required=False,
+        slug_field='text',
+    )
+
+    def to_internal_value(self, data):
+        tags_data = data.get('tags')
+        if isinstance(tags_data, list):
+            for text in (tags_data):
+                if not Tag.objects.filter(text=text).exists():
+                    Tag.objects.create(text=text)
+
+        return super().to_internal_value(data)
 
     # category_id 字段的验证器，防止为文章添加不存在的category_id时500错误
     def validate_category_id(self, value):
@@ -49,9 +71,16 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
             raise serializers.ValidationError("Category with id {} not exists.".format(value))
         return value
 
+
+
+
     class Meta:
         model = Article
         fields = '__all__'
+
+
+
+
 
 class ArticleCategoryDetailSerializer(serializers.ModelSerializer):
     """分类详情的嵌套序列器，显示每个分类对应文章的article url"""
@@ -73,3 +102,6 @@ class CategoryDetailSerializer(serializers.ModelSerializer):
             'created',
             'articles',
         ]
+
+
+
