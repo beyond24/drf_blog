@@ -7,9 +7,10 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAdminUser
 from .permisssions import IsAdminUserOrReadOnly
 
-from article.models import Article, Category, Tag
+from article.models import Article, Category, Tag, Avatar
 # from article.serializers import ArticleListSerializer, ArticleDetailSerializer
-from article.serializers import ArticleSerializer, CategorySerializer, CategoryDetailSerializer, TagSerializer
+from article.serializers import ArticleSerializer, CategorySerializer, CategoryDetailSerializer, TagSerializer, \
+    ArticleDetailSerializer, AvatarSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import ArticleFilter
 
@@ -98,6 +99,12 @@ class ArticleViewSet(viewsets.ModelViewSet):
     #     if username:
     #         queryset = queryset.filter(author__username=username)
     #     return queryset
+    def get_serializer_class(self):
+        """在列表页和详情页使用不同的序列化器"""
+        if self.action == 'list':
+            return ArticleSerializer
+        else:
+            return ArticleDetailSerializer
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -116,4 +123,12 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    permission_classes = [IsAdminUserOrReadOnly]
+
+
+
+
+class AvatarViewSet(viewsets.ModelViewSet):
+    queryset = Avatar.objects.all()
+    serializer_class = AvatarSerializer
     permission_classes = [IsAdminUserOrReadOnly]

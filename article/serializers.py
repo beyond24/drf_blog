@@ -1,7 +1,5 @@
-import json
-
 from rest_framework import serializers
-from .models import Article, Category, Tag
+from .models import Article, Category, Tag, Avatar
 from user_info.serializers import UserDescSerializer
 
 
@@ -27,9 +25,6 @@ from user_info.serializers import UserDescSerializer
 #         fields = '__all__'
 
 
-
-
-
 class CategorySerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='category-detail')
 
@@ -38,13 +33,23 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['created']
 
+
 class TagSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Tag
         fields = '__all__'
 
 
-class ArticleSerializer(serializers.HyperlinkedModelSerializer):
+
+class AvatarSerializer(serializers.ModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='avatar-detail')
+
+    class Meta:
+        model = Avatar
+        fields = '__all__'
+
+class ArticleBaseSerializer(serializers.HyperlinkedModelSerializer):
+    """文章列表和详情页的基类"""
     author = UserDescSerializer(read_only=True)
     category = CategorySerializer(read_only=True)
     # category 的 id 字段，用于创建/更新 category 外键
@@ -54,6 +59,12 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
         many=True,
         required=False,
         slug_field='text',
+    )
+    avatar = AvatarSerializer(read_only=True)
+    avatar_id = serializers.IntegerField(
+        write_only=True,
+        allow_null=True,
+        required=False
     )
 
     def to_internal_value(self, data):
@@ -71,16 +82,34 @@ class ArticleSerializer(serializers.HyperlinkedModelSerializer):
             raise serializers.ValidationError("Category with id {} not exists.".format(value))
         return value
 
+    def validated_avatar_id(self,value):
+        if not Avatar.objects.filter(id=value).exists() and value is not  None:
+            raise serializers.ValidationError("Avatar with id {} not exists.".format(value))
+        return value
+
+class ArticleSerializer(ArticleBaseSerializer):
+    class Meta:
+        model = Article
+        fields = '__all__'
+        extra_kwargs = {
+            'body': {'write_only': True}  # 增加参数，在列表接口处，body可写，但不必显示
+        }
 
 
+class ArticleDetailSerializer(ArticleBaseSerializer):
+    # SerializerMethodField()调用get_body_html()，可用于将任何类型的数据添加到对象的序列化表示中
+    body_html = serializers.SerializerMethodField
+    toc_html = serializers.SerializerMethodField
+
+    def get_body_html(self, obj):
+        return obj.get_md()[0]
+
+    def get_toc_html(self, obj):
+        return obj.get_md()[1]
 
     class Meta:
         model = Article
         fields = '__all__'
-
-
-
-
 
 class ArticleCategoryDetailSerializer(serializers.ModelSerializer):
     """分类详情的嵌套序列器，显示每个分类对应文章的article url"""
@@ -90,9 +119,10 @@ class ArticleCategoryDetailSerializer(serializers.ModelSerializer):
         model = Article
         fields = ['url', 'title']
 
+
 class CategoryDetailSerializer(serializers.ModelSerializer):
     """分类详情"""
-    articles = ArticleCategoryDetailSerializer(many=True,read_only=True)
+    articles = ArticleCategoryDetailSerializer(many=True, read_only=True)
 
     class Meta:
         model = Category
@@ -102,6 +132,5 @@ class CategoryDetailSerializer(serializers.ModelSerializer):
             'created',
             'articles',
         ]
-
 
 
