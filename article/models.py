@@ -57,7 +57,7 @@ class Article(models.Model):
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
-        related_name='article'
+        related_name='articles'
     )
 
 
