@@ -17,6 +17,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from article.views import ArticleViewSet, CategoryViewSet, TagViewSet, AvatarViewSet
 from comment.views import CommentViewSet
@@ -29,7 +30,6 @@ router.register(r'tag', TagViewSet)
 router.register(r'avatar', AvatarViewSet)
 router.register(r'comment', CommentViewSet)
 
-
 urlpatterns = [
     path('admin/', admin.site.urls),
 
@@ -38,6 +38,10 @@ urlpatterns = [
 
     # 文章 改用视图集生成
     # path('api/article/', include('article.urls', namespace='article')),
+
+    # jwt
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     # 使用viewset自动生成路由
     path('api/', include(router.urls))
