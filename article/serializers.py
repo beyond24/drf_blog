@@ -148,8 +148,8 @@ class ArticleSerializer(ArticleBaseSerializer):
 
 class ArticleDetailSerializer(ArticleBaseSerializer):
     # SerializerMethodField()调用get_body_html()，可用于将任何类型的数据添加到对象的序列化表示中
-    body_html = serializers.SerializerMethodField
-    toc_html = serializers.SerializerMethodField
+    body_html = serializers.SerializerMethodField()
+    toc_html = serializers.SerializerMethodField()
     comments = CommentSerializer(many=True, read_only=True)
 
 
