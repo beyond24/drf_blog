@@ -21,6 +21,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from article.views import ArticleViewSet, CategoryViewSet, TagViewSet, AvatarViewSet
 from comment.views import CommentViewSet
+from user_info.views import UserViewSet
 from drf_blog import settings
 
 router = DefaultRouter()
@@ -29,6 +30,7 @@ router.register(r'category', CategoryViewSet)
 router.register(r'tag', TagViewSet)
 router.register(r'avatar', AvatarViewSet)
 router.register(r'comment', CommentViewSet)
+router.register(r'user', UserViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
