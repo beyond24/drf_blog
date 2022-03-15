@@ -115,6 +115,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAdminUserOrReadOnly]
+    pagination_class = None
 
     # 使用自定义序列化器
     def get_serializer_class(self):
@@ -128,7 +129,7 @@ class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = [IsAdminUserOrReadOnly]
-
+    pagination_class = None
 
 
 

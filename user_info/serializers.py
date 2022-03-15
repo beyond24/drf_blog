@@ -20,7 +20,7 @@ class UserDescSerializer(serializers.ModelSerializer):
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     # lookup_field是将超链接中/api/user/pk/  ==> /api/user/uername/
-    url = serializers.HyperlinkedIdentityField(view_name='user-detail',lookup_field='username')
+    url = serializers.HyperlinkedIdentityField(view_name='user-detail', lookup_field='username')
 
     class Meta:
         model = User
@@ -29,9 +29,11 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             'id',
             'username',
             'password',
+            'is_superuser',
         ]
         extra_kwargs = {
-            'password': {'write_only': True}
+            'password': {'write_only': True},
+            'is_superuser': {'read_only': True},
         }
 
     def create(self, validated_data):

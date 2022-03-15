@@ -1,6 +1,9 @@
 <template>
     <div v-for="article in info.results" :key="article.url" id="articles">
         <div>
+            <span v-if="article.category !== null" class="category">
+                {{ article.category.title }}
+            </span>
             <span v-for="tag in article.tags" :key="tag" class="tag">
 				{{ tag }}
 			</span>
@@ -70,7 +73,7 @@ export default {
 
             const paramsString = params.toString();
             if (paramsString.charAt(0) !== '') {
-                url += '/?'+ paramsString;
+                url += '/?' + paramsString;
             }
             console.log(url)
             axios
@@ -86,9 +89,7 @@ export default {
                 switch (direction) {
                     case 'next':
                         if (this.info.next !== undefined) {
-                            console.log((new URL(this.info.next)))
                             url += (new URL(this.info.next)).search
-                            console.log(url)
                         }
                         break;
                     case 'previous':
@@ -152,6 +153,16 @@ export default {
 
 .a-title-container {
     padding: 5px 0 5px 0;
+}
+
+.category {
+    padding: 5px 10px 5px 10px;
+    margin: 5px 5px 5px 0;
+    font-family: Georgia, Arial, sans-serif;
+    font-size: small;
+    background-color: darkred;
+    color: whitesmoke;
+    border-radius: 15px;
 }
 
 .tag {

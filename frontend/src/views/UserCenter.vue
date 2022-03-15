@@ -1,5 +1,5 @@
 <template>
-    <BlogHeader/>
+    <BlogHeader :welcome-name="welcomeName"/>
     <div id="user-center">
         <h3>更新资料信息</h3>
         <form>
@@ -16,6 +16,20 @@
 
             <div class="form-elem">
                 <button v-on:click.prevent="changeInfo">更新</button>
+            </div>
+            <div class="form-elem">
+                <button
+                    v-on:click.prevent="showingDeleteAlert = true"
+                    class="delete-btn"
+                >删除用户</button>
+                <div :class="{ shake: showingDeleteAlert }">
+                    <button
+                            v-if="showingDeleteAlert"
+                            class="confirm-btn"
+                            @click.prevent="confirmDelete"
+                    >确定？
+                    </button>
+                </div>
             </div>
         </form>
     </div>
@@ -39,12 +53,34 @@
                 username: '',
                 password: '',
                 token: '',
+                welcomeName: '',
+                showingDeleteAlert: false,
             }
         },
         mounted() {
             this.username = storage.getItem('username.myblog');
+            this.welcomeName = storage.getItem('username.myblog');
         },
         methods: {
+            confirmDelete() {
+                const that = this;
+                authorization()
+                    .then(function (response) {
+                        if (response[0]) {
+                            // 获取令牌
+                            that.token = storage.getItem('access.myblog');
+                            axios
+                                .delete('/api/user/' + that.username + '/', {
+                                    headers: {Authorization: 'Bearer ' + that.token}
+                                })
+                                .then(function () {
+                                    storage.clear();
+                                    console.log(that);
+                                    that.$router.push({name: 'HomePage'});
+                                })
+                        }
+                    })
+            },
             changeInfo() {
                 const that = this;
                 // 验证登录状态
@@ -87,6 +123,7 @@
                                 const name = response.data.username;
                                 storage.setItem('username.myblog', name);
                                 that.$router.push({name: 'UserCenter', params: {username: name}});
+                                that.welcomeName = name;
                             })
                     });
             }
@@ -114,5 +151,38 @@
         color: whitesmoke;
         border-radius: 5px;
         width: 200px;
+    }
+    .confirm-btn {
+        width: 80px;
+        background-color: darkorange;
+    }
+    .delete-btn {
+        background-color: darkred;
+        margin-bottom: 10px;
+    }
+    .shake {
+        animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+        transform: translate3d(0, 0, 0);
+        backface-visibility: hidden;
+        perspective: 1000px;
+    }
+    @keyframes shake {
+        10%,
+        90% {
+            transform: translate3d(-1px, 0, 0);
+        }
+        20%,
+        80% {
+            transform: translate3d(2px, 0, 0);
+        }
+        30%,
+        50%,
+        70% {
+            transform: translate3d(-4px, 0, 0);
+        }
+        40%,
+        60% {
+            transform: translate3d(4px, 0, 0);
+        }
     }
 </style>
