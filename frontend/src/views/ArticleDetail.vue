@@ -64,3 +64,19 @@
         font-size: small;
     }
 </style>
+
+<style>
+    .article-body p img {
+        max-width: 100%;
+        border-radius: 20px;
+        box-shadow: gray 0 0 20px;
+    }
+
+    .toc ul {
+        list-style-type: none;
+    }
+
+    .toc a {
+        color: gray;
+    }
+</style>
