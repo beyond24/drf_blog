@@ -14,7 +14,7 @@
     import ArticleList from '@/components/ArticleList.vue'
 
     export default {
-        name: 'MyHome',
+        name: 'HomePage',
         components: {
             BlogHeader,
             BlogFooter,

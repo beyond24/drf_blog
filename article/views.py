@@ -12,6 +12,7 @@ from article.models import Article, Category, Tag, Avatar
 from article.serializers import ArticleSerializer, CategorySerializer, CategoryDetailSerializer, TagSerializer, \
     ArticleDetailSerializer, AvatarSerializer
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
 from .filters import ArticleFilter
 
 
@@ -78,10 +79,13 @@ from .filters import ArticleFilter
 
 # 使用视图集
 class ArticleViewSet(viewsets.ModelViewSet):
-    # filter_backends = [DjangoFilterBackend]
-    # filterset_fields = ['author__username','title']
-    # 使用自定义过滤器,支持模糊查询
-    filterset_class = ArticleFilter
+
+    # 使用rest自带的search
+    filter_backends = [SearchFilter]
+    search_fields = ['title','body']
+
+    # 使用django-filter自定义过滤器,支持模糊查询
+    # filterset_class = ArticleFilter
 
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer

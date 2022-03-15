@@ -15,6 +15,21 @@
         </div>
         <div>{{ formatted_time(article.created) }}</div>
     </div>
+    <div id="paginator">
+        <span v-if="is_page_exists('previous')">
+            <router-link :to="get_path('previous')">
+                Prev
+            </router-link>
+        </span>
+        <span class="current-page">
+            {{ get_page_param('current') }}
+        </span>
+        <span v-if="is_page_exists('next')">
+            <router-link :to="get_path('next')">
+                Next
+            </router-link>
+        </span>
+    </div>
 </template>
 
 <script>
@@ -28,17 +43,96 @@ export default {
         }
     },
     mounted() {
-        axios
-            .get('/api/article')
-            .then((response) => {
-                this.info = response.data
-            })
+        this.get_article_data()
+        // axios
+        //     .get('/api/article')
+        //     .then((response) => {
+        //         this.info = response.data
+        //     })
+    },
+    watch: {
+        // 监听路由变化，重新获取
+        $route() {
+            this.get_article_data()
+        }
     },
     methods: {
         formatted_time: function (iso_date_string) {
             const date = new Date(iso_date_string);
             return date.toLocaleDateString()
-        }
+        },
+
+        get_article_data: function () {
+            let url = '/api/article';
+            let params = new URLSearchParams();
+            params.appendIfExists('page', this.$route.query.page);
+            params.appendIfExists('search', this.$route.query.search);
+
+            const paramsString = params.toString();
+            if (paramsString.charAt(0) !== '') {
+                url += '/?'+ paramsString;
+            }
+            console.log(url)
+            axios
+                .get(url)
+                .then((response) => {
+                    this.info = response.data
+                })
+                .catch(error => console.log(error))
+        },
+        get_path: function (direction) {
+            let url = '';
+            try {
+                switch (direction) {
+                    case 'next':
+                        if (this.info.next !== undefined) {
+                            console.log((new URL(this.info.next)))
+                            url += (new URL(this.info.next)).search
+                            console.log(url)
+                        }
+                        break;
+                    case 'previous':
+                        if (this.info.previous !== undefined) {
+                            url += (new URL(this.info.previous)).search
+                        }
+                        break;
+                }
+            } catch (err) {
+                console.log(err)
+                return url
+            }
+            return url
+        },
+
+        is_page_exists(direction) {
+            if (direction === 'next') {
+                return this.info.next !== null
+            }
+            return this.info.previous !== null
+        },
+
+        get_page_param: function (direction) {
+            try {
+                let url_string;
+                switch (direction) {
+                    case 'next':
+                        url_string = this.info.next;
+                        break;
+                    case 'previous':
+                        url_string = this.info.previous;
+                        break;
+                    default:
+                        // console.log(this.$route.query.page)
+                        return this.$route.query.page
+                }
+                const url = new URL(url_string);
+                // URL对象获取参数
+                return url.searchParams.get('page')
+            } catch (err) {
+                return
+            }
+        },
+
     }
 }
 </script>
@@ -55,9 +149,10 @@ export default {
     text-decoration: none;
     /*padding: 5px 0 5px 0;*/
 }
+
 .a-title-container {
-        padding: 5px 0 5px 0;
-    }
+    padding: 5px 0 5px 0;
+}
 
 .tag {
     padding: 2px 5px 2px 5px;
@@ -67,5 +162,21 @@ export default {
     background-color: #4e4e4e;
     color: whitesmoke;
     border-radius: 5px;
+}
+
+#paginator {
+    text-align: center;
+    padding-top: 50px;
+}
+
+a {
+    color: black;
+}
+
+.current-page {
+    font-size: x-large;
+    font-weight: bold;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 </style>
