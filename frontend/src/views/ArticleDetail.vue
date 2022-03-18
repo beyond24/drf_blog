@@ -21,6 +21,8 @@
         </div>
     </div>
 
+    <CommentList :article="article"/>
+
     <BlogFooter/>
 
 </template>
@@ -28,11 +30,12 @@
 <script>
 import BlogHeader from '@/components/BlogHeader.vue'
 import BlogFooter from '@/components/BlogFooter.vue'
+import CommentList from '@/components/CommentList.vue'
 import axios from "axios";
 
 export default {
     name: 'ArticleDetail',
-    components: {BlogHeader, BlogFooter},
+    components: {BlogHeader, BlogFooter,CommentList},
     data: function () {
         return {
             article: null,

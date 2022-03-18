@@ -20,10 +20,10 @@ class CommentSerializer(serializers.ModelSerializer):
 
     # HyperlinkedRelatedField：由关联字段的主键生成，如与评论关联的是文章
     article = serializers.HyperlinkedRelatedField(view_name='article-detail', read_only=True)
-    # article_id = serializers.IntegerField(write_only=True, allow_null=True, required=True)
+    article_id = serializers.IntegerField(write_only=True, allow_null=True, required=True)
 
     parent = CommentChildrenSerializer(read_only=True)
-    parent_id = serializers.IntegerField(write_only=True, allow_null=True, required=True)
+    parent_id = serializers.IntegerField(write_only=True, allow_null=True, required=False)
 
     def update(self, instance, validated_data):
         """父级评论只在创建时关联，更新时不用关联"""
